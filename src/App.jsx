@@ -1,34 +1,93 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import { supabase } from './supabaseClient'
+import { Link } from 'react-router-dom'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [preferences, setPreferences] = useState([])
+  const [formData, setFormData] = useState({
+    diet: '',
+    allergies: '',
+    goals: ''
+  })
+
+  useEffect(() => {
+    fetchPreferences()
+  }, [])
+
+  const fetchPreferences = async () => {
+    try {
+      const { data, error } = await supabase.from('user_preferences').select('*')
+      if (error) throw error
+      setPreferences(data)
+      console.log('✅ User Preferences:', data)
+    } catch (error) {
+      console.error('❌ Error fetching data:', error)
+    }
+  }
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const { error } = await supabase.from('user_preferences').insert([formData])
+      if (error) throw error
+      fetchPreferences()
+      setFormData({ diet: '', allergies: '', goals: '' })
+    } catch (error) {
+      console.error('❌ Error submitting data:', error)
+    }
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div style={{ padding: '20px' }}>
+      {/* ✅ Navigation Bar */}
+      <nav style={{ marginBottom: '20px' }}>
+        <Link to="/">Home</Link> | <Link to="/meal-planner">Meal Planner</Link>
+      </nav>
+
+      <h1>Welcome to the Meal Planner App</h1>
+
+      <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+        <input
+          type="text"
+          name="diet"
+          placeholder="Diet (e.g. vegetarian)"
+          value={formData.diet}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="text"
+          name="allergies"
+          placeholder="Allergies (e.g. peanuts)"
+          value={formData.allergies}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="goals"
+          placeholder="Health Goals (e.g. weight loss)"
+          value={formData.goals}
+          onChange={handleChange}
+        />
+        <button type="submit">Save Preferences</button>
+      </form>
+
+      <h2>Saved Preferences</h2>
+      <ul>
+        {preferences.map((pref, index) => (
+          <li key={index}>
+            <strong>Diet:</strong> {pref.diet} | <strong>Allergies:</strong> {pref.allergies} | <strong>Goals:</strong> {pref.goals}
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 
