@@ -4,7 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Home from './pages/Home';
 import RecipeDetail from './pages/RecipeDetail';
-import MealPlanner from './pages/MealPlanner';
+import MealPlanner from './pages/mealplanner';
 import SavedRecipes from './pages/SavedRecipes';
 import UserPreferences from './components/UserPreferences';
 import About from './pages/About';
