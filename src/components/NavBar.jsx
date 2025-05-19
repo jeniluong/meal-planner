@@ -8,6 +8,9 @@ function NavBar() {
       <Link to="/help" style={styles.link}>Help</Link>
       <Link to="/meal-planner" style={styles.link}>Meal Planner</Link>
       <Link to="/grocery-list" style={styles.link}>Grocery List</Link>
+      <Link to="/saved-recipes" style={styles.link}>Saved Recipes</Link>
+      <Link to="/generated-meal-plans" style={styles.link}>Meal Plans</Link>
+      <Link to="/user-preferences" style={styles.link}>Preferences</Link>
     </nav>
   );
 }
@@ -17,6 +20,7 @@ const styles = {
     padding: '1rem',
     backgroundColor: '#f0f0f0',
     display: 'flex',
+    flexWrap: 'wrap',
     gap: '1rem',
     borderBottom: '1px solid #ccc',
   },
