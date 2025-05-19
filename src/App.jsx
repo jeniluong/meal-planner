@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Help from './pages/Help';
 import UserPreferences from './components/UserPreferences';
-import MealPlanner from './pages/MealPlanner';
+import MealPlanner from './pages/mealplanner';
 import GroceryList from './pages/GroceryList';
 import SavedRecipes from './pages/SavedRecipes';
 
