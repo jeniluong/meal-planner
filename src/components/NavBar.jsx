@@ -21,10 +21,12 @@ const styles = {
     display: 'flex',
     gap: '1rem',
     borderBottom: '1px solid #ccc',
+    flexWrap: 'wrap',
   },
   link: {
     textDecoration: 'none',
     color: '#333',
+    fontWeight: '500',
   },
 };
 

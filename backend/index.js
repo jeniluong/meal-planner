@@ -1,21 +1,19 @@
+// index.js (Express Backend Server)
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import './index.css';
 
-// Load environment variables from .env file
+// Load env variables
 dotenv.config();
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// Setup Supabase client with env variables
+// Supabase setup
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -23,26 +21,36 @@ const supabase = createClient(
 
 // GET user preferences
 app.get('/api/preferences', async (req, res) => {
-  const { data, error } = await supabase
-    .from('preferences')
-    .select('*')
-    .limit(1)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('preferences')
+      .select('*')
+      .limit(1)
+      .single();
 
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// POST to save recipe
+// POST save recipe
 app.post('/api/save-recipe', async (req, res) => {
   const { id, title, image, sourceUrl } = req.body;
 
-  const { data, error } = await supabase
-    .from('saved_recipes')
-    .insert([{ id, title, image, sourceUrl }]);
+  try {
+    const { data, error } = await supabase
+      .from('saved_recipes')
+      .insert([{ id, title, image, sourceUrl }]);
 
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ success: true, data });
+    if (error) throw error;
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

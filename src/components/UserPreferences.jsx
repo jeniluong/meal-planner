@@ -1,38 +1,42 @@
-import React, { useState, useContext } from 'react';
-import { AppContext } from '../context/AppContext';
+import React, { useEffect, useState } from 'react';
+import { fetchUserPreferences } from '../api/backend';
 
-function UserPreferences() {
-  const [diet, setDiet] = useState('');
-  const [allergies, setAllergies] = useState('');
-  const [mealsPerDay, setMealsPerDay] = useState(3);
-  const { setPreferences } = useContext(AppContext);
+const UserPreferences = () => {
+  const [preferences, setPreferences] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setPreferences({ diet, allergies, mealsPerDay });
-    alert('Preferences saved!');
-  };
+  useEffect(() => {
+    const loadPreferences = async () => {
+      try {
+        const data = await fetchUserPreferences();
+        setPreferences(data);
+      } catch (err) {
+        setError('Failed to fetch user preferences');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPreferences();
+  }, []);
+
+  if (loading) return <div className="p-4">Loading preferences...</div>;
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div>
-      <h2>User Preferences</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Dietary Restrictions:
-          <input value={diet} onChange={(e) => setDiet(e.target.value)} placeholder="e.g. vegan, keto" />
-        </label>
-        <br />
-        <label>Allergies:
-          <input value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="e.g. peanuts" />
-        </label>
-        <br />
-        <label>Meals per Day:
-          <input type="number" value={mealsPerDay} onChange={(e) => setMealsPerDay(Number(e.target.value))} />
-        </label>
-        <br />
-        <button type="submit">Save Preferences</button>
-      </form>
+    <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+      <h1 className="text-2xl font-bold mb-4">User Preferences</h1>
+      <ul className="list-disc pl-6 space-y-2">
+        {Object.entries(preferences).map(([key, value]) => (
+          <li key={key}>
+            <strong className="capitalize">{key}:</strong> {String(value)}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
 
 export default UserPreferences;

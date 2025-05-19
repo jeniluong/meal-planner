@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: #333333; /* dark text for light pink background */
-  background-color: #ffe4e6; /* light pink background */
+  color: #333333;
+  background-color: #ffe4e6; 
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

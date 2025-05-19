@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 const SPOONACULAR_API_KEY = '8b1965faa315437786308096acf62571';
@@ -7,37 +8,32 @@ const SPOONACULAR_API_KEY = '8b1965faa315437786308096acf62571';
 function Home() {
   const [featuredRecipes, setFeaturedRecipes] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState({
-    diet: '',
-    intolerances: '',
-  });
-  const [filterOptions, setFilterOptions] = useState({
+  const [filters, setFilters] = useState({ diet: '', intolerances: '' });
+  const [filterOptions] = useState({
     diets: ['Gluten Free', 'Ketogenic', 'Vegetarian', 'Vegan', 'Pescetarian'],
     intolerances: ['Dairy', 'Egg', 'Gluten', 'Peanut', 'Seafood', 'Soy', 'Tree Nut', 'Wheat'],
   });
   const [searchResults, setSearchResults] = useState([]);
   const [loadingFeatured, setLoadingFeatured] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
+  const navigate = useNavigate();
 
-  // Fetch featured recipes for slider
   useEffect(() => {
     async function fetchFeatured() {
       setLoadingFeatured(true);
       try {
-        const response = await fetch(
-          `https://api.spoonacular.com/recipes/random?number=6&apiKey=${SPOONACULAR_API_KEY}`
-        );
-        const data = await response.json();
+        const res = await fetch(`https://api.spoonacular.com/recipes/random?number=6&apiKey=${SPOONACULAR_API_KEY}`);
+        const data = await res.json();
         setFeaturedRecipes(data.recipes || []);
-      } catch (error) {
-        console.error('Error fetching featured recipes:', error);
+      } catch (err) {
+        console.error('Error loading featured:', err);
+      } finally {
+        setLoadingFeatured(false);
       }
-      setLoadingFeatured(false);
     }
     fetchFeatured();
   }, []);
 
-  // Search recipes based on query and filters
   const handleSearch = async () => {
     setLoadingSearch(true);
     try {
@@ -49,16 +45,16 @@ function Home() {
       url.searchParams.append('number', '10');
       url.searchParams.append('addRecipeInformation', 'true');
 
-      const response = await fetch(url);
-      const data = await response.json();
+      const res = await fetch(url);
+      const data = await res.json();
       setSearchResults(data.results || []);
-    } catch (error) {
-      console.error('Error searching recipes:', error);
+    } catch (err) {
+      console.error('Search failed:', err);
+    } finally {
+      setLoadingSearch(false);
     }
-    setLoadingSearch(false);
   };
 
-  // Slider settings for React Slick
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -75,7 +71,6 @@ function Home() {
     <div className="home-container">
       <h1>Smart Meal Planner</h1>
 
-      {/* Search Bar and Filters */}
       <div className="search-filters">
         <input
           type="text"
@@ -83,35 +78,21 @@ function Home() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-
-        <select
-          value={filters.diet}
-          onChange={(e) => setFilters((prev) => ({ ...prev, diet: e.target.value }))}
-        >
+        <select value={filters.diet} onChange={(e) => setFilters({ ...filters, diet: e.target.value })}>
           <option value="">Select Diet</option>
           {filterOptions.diets.map((diet) => (
-            <option key={diet} value={diet.toLowerCase()}>
-              {diet}
-            </option>
+            <option key={diet} value={diet.toLowerCase()}>{diet}</option>
           ))}
         </select>
-
-        <select
-          value={filters.intolerances}
-          onChange={(e) => setFilters((prev) => ({ ...prev, intolerances: e.target.value }))}
-        >
+        <select value={filters.intolerances} onChange={(e) => setFilters({ ...filters, intolerances: e.target.value })}>
           <option value="">Select Intolerance</option>
           {filterOptions.intolerances.map((intol) => (
-            <option key={intol} value={intol.toLowerCase()}>
-              {intol}
-            </option>
+            <option key={intol} value={intol.toLowerCase()}>{intol}</option>
           ))}
         </select>
-
         <button onClick={handleSearch}>Search</button>
       </div>
 
-      {/* Featured Recipes Slider */}
       <section>
         <h2>Featured Recipes</h2>
         {loadingFeatured ? (
@@ -119,7 +100,7 @@ function Home() {
         ) : (
           <Slider {...sliderSettings}>
             {featuredRecipes.map((recipe) => (
-              <div key={recipe.id} className="featured-recipe-card">
+              <div key={recipe.id} className="featured-recipe-card" onClick={() => navigate(`/recipe/${recipe.id}`)}>
                 <img src={recipe.image} alt={recipe.title} />
                 <h4>{recipe.title}</h4>
               </div>
@@ -128,7 +109,6 @@ function Home() {
         )}
       </section>
 
-      {/* Search Results */}
       <section style={{ marginTop: '40px' }}>
         <h2>Search Results</h2>
         {loadingSearch ? (
@@ -136,20 +116,18 @@ function Home() {
         ) : searchResults.length > 0 ? (
           <ul className="search-results-list">
             {searchResults.map((recipe) => (
-              <li key={recipe.id}>
+              <li key={recipe.id} onClick={() => navigate(`/recipe/${recipe.id}`)} style={{ cursor: 'pointer' }}>
                 <img src={recipe.image} alt={recipe.title} />
                 <div className="recipe-info">
                   <h3>{recipe.title}</h3>
                   <p dangerouslySetInnerHTML={{ __html: recipe.summary?.slice(0, 150) + '...' }} />
-                  <a href={recipe.sourceUrl} target="_blank" rel="noreferrer">
-                    View Full Recipe
-                  </a>
+                  <a href={recipe.sourceUrl} onClick={(e) => e.stopPropagation()} target="_blank" rel="noreferrer">View Full Recipe</a>
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          <p>No recipes found. Try searching for something.</p>
+          <p>No recipes found. Try a different search.</p>
         )}
       </section>
     </div>

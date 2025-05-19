@@ -1,30 +1,14 @@
-import React, { useContext, useEffect } from 'react';
-import { AppContext } from '../context/AppContext';
+import React from 'react';
 
-function GroceryList() {
-  const { mealPlan, groceryList, setGroceryList } = useContext(AppContext);
-
-  useEffect(() => {
-    if (mealPlan.length > 0) {
-      const dummyGroceries = ['Tofu', 'Broccoli', 'Quinoa', 'Avocados', 'Lentils'];
-      setGroceryList(dummyGroceries);
-    }
-  }, [mealPlan]);
-
+const GroceryList = () => {
   return (
-    <div>
-      <h2>Grocery List</h2>
-      {groceryList.length > 0 ? (
-        <ul>
-          {groceryList.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No grocery list yet. Generate a meal plan first.</p>
-      )}
+    <div className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Grocery List</h1>
+      <p className="text-gray-700">
+        Your grocery list will appear here based on the meals you've planned. You'll be able to check off items as you shop.
+      </p>
     </div>
   );
-}
+};
 
 export default GroceryList;
