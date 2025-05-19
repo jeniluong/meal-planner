@@ -1,14 +1,22 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 const PORT = 5000;
+
 app.use(cors());
 app.use(express.json());
 
-// Setup Supabase client
-const supabase = createClient('https://ajzgrxzucpturxxvawzd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqemdyeHp1Y3B0dXJ4eHZhd3pkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzU0MjIwMSwiZXhwIjoyMDYzMTE4MjAxfQ.tGO_6_C5pagbtNaDGxRIxyuNNdDEyuN7KlHq0hUsAPo');
+// Setup Supabase client with env variables
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 // GET user preferences
 app.get('/api/preferences', async (req, res) => {

@@ -11,7 +11,7 @@ function MealPlanner() {
       setLoading(true);
       try {
         const preferences = await fetchUserPreferences();
-        const recipes = await fetchMealPlan(preferences.diet, preferences.meals_per_day);
+        const recipes = await fetchMealPlan(preferences);
         setMeals(recipes);
       } catch (error) {
         console.error(error);
