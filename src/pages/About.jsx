@@ -1,5 +1,4 @@
-function About() {
-    return <h1>About Page</h1>;
-  }
-  
-  export default About;
+function Home() {
+  return <h2>Welcome to the Smart Meal Planner!</h2>;
+}
+export default Home;

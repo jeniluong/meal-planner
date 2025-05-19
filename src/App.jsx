@@ -1,15 +1,12 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import NavBar from './components/NavBar';
 import Home from './pages/Home';
 import About from './pages/About';
-import MealPlanner from './pages/mealplanner';
-import RecipeDetail from './pages/RecipeDetail';
 import Help from './pages/Help';
+import UserPreferences from './components/UserPreferences';
+import MealPlanner from './pages/MealPlanner';
 import GroceryList from './pages/GroceryList';
-import SavedRecipes from './pages/SavedRecipes';              
-import GeneratedMealPlans from './pages/GeneratedMealPlans';  
-import UserPreferences from './pages/UserPreferences';        
-import NavBar from './components/NavBar';
+import SavedRecipes from './pages/SavedRecipes';
 
 function App() {
   return (
@@ -18,13 +15,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/meal-planner" element={<MealPlanner />} />
-        <Route path="/recipes/:id" element={<RecipeDetail />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/user-preferences" element={<UserPreferences />} />
+        <Route path="/meal-planner" element={<MealPlanner />} />
         <Route path="/grocery-list" element={<GroceryList />} />
         <Route path="/saved-recipes" element={<SavedRecipes />} />
-        <Route path="/generated-meal-plans" element={<GeneratedMealPlans />} />
-        <Route path="/user-preferences" element={<UserPreferences />} />
       </Routes>
     </div>
   );
