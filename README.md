@@ -62,8 +62,13 @@ Saved recipes are not yet retrieved from Supabase (only saved).
 
 Future Plans:
 Multi-user support via Supabase auth
+
 Retrieve and display saved recipes
+
 Allow editing user preferences
+
 Unit + integration tests
+
 Add support for generating grocery lists from recipes
+
 Mobile responsiveness improvements
