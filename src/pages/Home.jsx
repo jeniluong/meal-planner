@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
+import './Home.css';
 
 const SPOONACULAR_API_KEY = '8b1965faa315437786308096acf62571';
 
@@ -43,8 +44,8 @@ function Home() {
       const url = new URL('https://api.spoonacular.com/recipes/complexSearch');
       url.searchParams.append('apiKey', SPOONACULAR_API_KEY);
       url.searchParams.append('query', searchQuery);
-      url.searchParams.append('diet', filters.diet);
-      url.searchParams.append('intolerances', filters.intolerances);
+      if (filters.diet) url.searchParams.append('diet', filters.diet);
+      if (filters.intolerances) url.searchParams.append('intolerances', filters.intolerances);
       url.searchParams.append('number', '10');
       url.searchParams.append('addRecipeInformation', 'true');
 
@@ -71,24 +72,21 @@ function Home() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="home-container">
       <h1>Smart Meal Planner</h1>
 
-      {/* Search Bar */}
-      <div style={{ marginBottom: '20px' }}>
+      {/* Search Bar and Filters */}
+      <div className="search-filters">
         <input
           type="text"
           placeholder="Search recipes..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ padding: '8px', width: '60%', marginRight: '10px' }}
         />
 
-        {/* Diet filter */}
         <select
           value={filters.diet}
           onChange={(e) => setFilters((prev) => ({ ...prev, diet: e.target.value }))}
-          style={{ marginRight: '10px', padding: '8px' }}
         >
           <option value="">Select Diet</option>
           {filterOptions.diets.map((diet) => (
@@ -98,11 +96,9 @@ function Home() {
           ))}
         </select>
 
-        {/* Intolerance filter */}
         <select
           value={filters.intolerances}
           onChange={(e) => setFilters((prev) => ({ ...prev, intolerances: e.target.value }))}
-          style={{ marginRight: '10px', padding: '8px' }}
         >
           <option value="">Select Intolerance</option>
           {filterOptions.intolerances.map((intol) => (
@@ -112,9 +108,7 @@ function Home() {
           ))}
         </select>
 
-        <button onClick={handleSearch} style={{ padding: '8px 16px' }}>
-          Search
-        </button>
+        <button onClick={handleSearch}>Search</button>
       </div>
 
       {/* Featured Recipes Slider */}
@@ -125,12 +119,8 @@ function Home() {
         ) : (
           <Slider {...sliderSettings}>
             {featuredRecipes.map((recipe) => (
-              <div key={recipe.id} style={{ padding: '0 10px' }}>
-                <img
-                  src={recipe.image}
-                  alt={recipe.title}
-                  style={{ width: '100%', borderRadius: '8px' }}
-                />
+              <div key={recipe.id} className="featured-recipe-card">
+                <img src={recipe.image} alt={recipe.title} />
                 <h4>{recipe.title}</h4>
               </div>
             ))}
@@ -144,26 +134,11 @@ function Home() {
         {loadingSearch ? (
           <p>Searching recipes...</p>
         ) : searchResults.length > 0 ? (
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
+          <ul className="search-results-list">
             {searchResults.map((recipe) => (
-              <li
-                key={recipe.id}
-                style={{
-                  marginBottom: '20px',
-                  padding: '10px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '20px',
-                }}
-              >
-                <img
-                  src={recipe.image}
-                  alt={recipe.title}
-                  style={{ width: '120px', borderRadius: '8px' }}
-                />
-                <div>
+              <li key={recipe.id}>
+                <img src={recipe.image} alt={recipe.title} />
+                <div className="recipe-info">
                   <h3>{recipe.title}</h3>
                   <p dangerouslySetInnerHTML={{ __html: recipe.summary?.slice(0, 150) + '...' }} />
                   <a href={recipe.sourceUrl} target="_blank" rel="noreferrer">
