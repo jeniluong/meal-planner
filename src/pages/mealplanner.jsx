@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -11,6 +11,8 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+
+import { generateMealPlan, fetchRecipeById } from '../api/api'; // ✅ API functions
 
 ChartJS.register(
   CategoryScale,
@@ -24,24 +26,37 @@ ChartJS.register(
 const MealPlanner = () => {
   const [userPreferences, setUserPreferences] = useState([]);
   const [chartData, setChartData] = useState(null);
+  const [generatedRecipes, setGeneratedRecipes] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('*');
-
-      if (error) {
-        console.error('❌ Error fetching data:', error);
-      } else {
-        console.log('✅ User Preferences:', data);
-        setUserPreferences(data);
-        buildChart(data);
-      }
-    };
-
-    fetchData();
+    fetchSupabaseData();
+    fetchGeneratedMealPlan(); // ✅ Load Spoonacular meal plan too
   }, []);
+
+  const fetchSupabaseData = async () => {
+    const { data, error } = await supabase.from('user_preferences').select('*');
+    if (error) {
+      console.error('❌ Error fetching Supabase data:', error);
+    } else {
+      setUserPreferences(data);
+      buildChart(data);
+    }
+  };
+
+  const fetchGeneratedMealPlan = async () => {
+    try {
+      const plan = await generateMealPlan({ timeFrame: 'day', targetCalories: 2000 });
+      const meals = plan.meals || [];
+
+      const detailedRecipes = await Promise.all(
+        meals.map((meal) => fetchRecipeById(meal.id))
+      );
+
+      setGeneratedRecipes(detailedRecipes);
+    } catch (err) {
+      console.error('❌ Error generating meal plan:', err);
+    }
+  };
 
   const buildChart = (data) => {
     const labels = data.map((item, index) => `Entry ${index + 1}`);
@@ -81,6 +96,7 @@ const MealPlanner = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Meal Planner</h1>
 
+      {/* Chart from Supabase */}
       {chartData ? (
         <Bar
           data={chartData}
@@ -88,7 +104,7 @@ const MealPlanner = () => {
             responsive: true,
             plugins: {
               legend: { position: 'top' },
-              title: { display: true, text: 'Nutrition Overview' },
+              title: { display: true, text: 'Nutrition Overview (User Preferences)' },
             },
           }}
         />
@@ -96,9 +112,9 @@ const MealPlanner = () => {
         <p>Loading chart...</p>
       )}
 
-      {/* Recipe Detail Links Section */}
+      {/* Supabase Recipe Links */}
       <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-2">Recipe Links</h2>
+        <h2 className="text-xl font-semibold mb-2">Your Saved Recipe Links</h2>
         <ul className="space-y-2">
           {userPreferences.map((item, index) => (
             <li key={item.id}>
@@ -111,6 +127,27 @@ const MealPlanner = () => {
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* Spoonacular Generated Meal Plan */}
+      <div className="mt-10">
+        <h2 className="text-xl font-semibold mb-2">Generated Meal Plan (Spoonacular)</h2>
+        {generatedRecipes.length > 0 ? (
+          <ul className="space-y-2">
+            {generatedRecipes.map((recipe) => (
+              <li key={recipe.id}>
+                <Link
+                  to={`/recipes/${recipe.id}`}
+                  className="text-green-600 hover:underline"
+                >
+                  {recipe.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Loading generated meal plan...</p>
+        )}
       </div>
     </div>
   );
